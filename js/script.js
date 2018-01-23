@@ -8,11 +8,22 @@ var map = new mapboxgl.Map({
     zoom: 7 // starting zoom
 });
 
-// CONTROLES SUR LA MAP (Recherche)
+/*-------- CONTROLES --------*/
+// Recherche
 map.addControl(new MapboxGeocoder({
 	accessToken: mapboxgl.accessToken
-}));
+}), 'top-left');
+// Controle +/-
 map.addControl(new mapboxgl.NavigationControl());
+// Géolocalisation
+map.addControl(new mapboxgl.GeolocateControl({
+    positionOptions: {
+        enableHighAccuracy: true
+    },
+    trackUserLocation: true
+}), 'top-left');
+/*-------- fin contrôles --------*/
+
 
 map.on('load', function () {
 
