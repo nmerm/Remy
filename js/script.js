@@ -12,6 +12,7 @@ var map = new mapboxgl.Map({
 map.addControl(new MapboxGeocoder({
 	accessToken: mapboxgl.accessToken
 }));
+map.addControl(new mapboxgl.NavigationControl());
 
 map.on('load', function () {
 
@@ -23,7 +24,7 @@ map.on('load', function () {
             "data": "json/world_cabanes.geojson"
         },
         "layout": {
-            "icon-image": "img/test.png",
+            "icon-image": "lodging-15",
             "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
         }
     });
