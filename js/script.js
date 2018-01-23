@@ -4,11 +4,28 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiY2hvdWJpZG91YXAiLCJhIjoiY2pjcWZwaWZqMTV1YTJ3b
 var map = new mapboxgl.Map({
     container: 'map', // container id
     style: 'mapbox://styles/mapbox/streets-v9', // stylesheet location
-    center: [-74.50, 40], // starting position [lng, lat]
-    zoom: 9 // starting zoom
+    center: [8, 46], // starting position [lng, lat]
+    zoom: 7 // starting zoom
 });
 
 // CONTROLES SUR LA MAP (Recherche)
 map.addControl(new MapboxGeocoder({
 	accessToken: mapboxgl.accessToken
 }));
+
+map.on('load', function () {
+
+    map.addLayer({
+        "id": "points",
+        "type": "symbol",
+        "source": {
+            "type": "geojson",
+            "data": "json/world_cabanes.geojson"
+        },
+        "layout": {
+            "icon-image": "img/test.png",
+            "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
+        }
+    });
+
+});
