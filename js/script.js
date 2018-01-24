@@ -40,4 +40,49 @@ map.on('load', function () {
         }
     });
 
+    //var nbClicks = 0;
+
+    // Tout simple, on set que l'élément est clickable
+    map.on('click', 'points', function (e) {
+        
+        //setTimeout(function(){
+
+        new mapboxgl.Popup()
+        .setLngLat(e.features[0].geometry.coordinates)
+        .setHTML('<b>'+e.features[0].properties.title+'</b>'
+                +'<br>Alt: '+e.features[0].properties.elevation+' m.')
+        .addTo(map);
+
+        //}, 100);
+
+        /* POUR FAIRE QUE SI IL RE APPUIE SUR LE MEME ICONE LA BOX DISPARAIT
+        nbClicks++;
+        popup = new mapboxgl.Popup();
+        if(nbClicks < 2){
+            popup
+            .setLngLat(e.features[0].geometry.coordinates)
+            .setHTML('<b>'+e.features[0].properties.title+'</b>'
+                    +'<br>Alt: '+e.features[0].properties.elevation+' m.')
+            .addTo(map);
+        } else {
+            popup.remove();
+            nbClicks = 0;
+        } 
+        */
+    });
+
+    // Change the cursor to a pointer when the mouse is over the places layer.
+    map.on('mouseenter', 'points', function () {
+        map.getCanvas().style.cursor = 'pointer';
+    });
+
+    // Change it back to a pointer when it leaves.
+    map.on('mouseleave', 'points', function () {
+        map.getCanvas().style.cursor = '';
+    });
+
+    // Center the map on the coordinates of any clicked symbol from the 'symbols' layer.
+    map.on('click', 'points', function (e) {
+        map.flyTo({center: e.features[0].geometry.coordinates});
+    });
 });
