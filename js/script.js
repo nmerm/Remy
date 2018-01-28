@@ -1,5 +1,5 @@
 
-// AFFICHAGE DE LA MAP, on va la chercher dans 
+// AFFICHAGE DE LA MAP, on va la chercher dans
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hvdWJpZG91YXAiLCJhIjoiY2pjcWZwaWZqMTV1YTJ3bWlpZ2kycG0xMiJ9.35GbAs9ZgRbsWhX7WZpf0w';
 var map = new mapboxgl.Map({
     container: 'map', // container id
@@ -30,13 +30,15 @@ map.addControl(new mapboxgl.GeolocateControl({
 
 map.on('load', function () {
 
+    map.addSource('cabanes', {
+        "type": "geojson",
+        "data": "json/world_cabanes.geojson"
+    });
+
     map.addLayer({
         "id": "points",
         "type": "symbol",
-        "source": {
-            "type": "geojson",
-            "data": "json/world_cabanes.geojson"
-        },
+        "source": "cabanes",
         "layout": {
             "icon-image": "lodging-15",
             "text-font": ["Open Sans Semibold", "Arial Unicode MS Bold"],
@@ -52,38 +54,60 @@ map.on('load', function () {
         }
     });
 
+    // Source pour le buffer
+    map.addSource('buffer', {
+        type: 'geojson',
+        data: {
+            type: 'FeatureCollection',
+            features: [
+            ]
+        }
+    });
+
     // Listen for the `geocoder.input` event that is triggered when a user
     // makes a selection and add a symbol that matches the result.
     // Tiré de : https://www.mapbox.com/mapbox-gl-js/example/point-from-geocoder-result/
-    // Calcul du rayon du cercle adapté de : https://stackoverflow.com/a/37794326
     geocoder.on('result', function(ev) {
         map.getSource('single-point').setData(ev.result.geometry);
 
+        // Rend les coordonnées du point renvoyé par le geocoder
+        var centreCoord = ev.result.geometry.coordinates;
+
+        // Crée un objet de type point pour turf
+        var pointCentreBuffer = turf.point(centreCoord);
+
+        // Calcule un buffer de 10km autour du point
+        var polygonBuffer = turf.buffer(pointCentreBuffer, 10, {units: "kilometers"});
+
+        // Crée une bounding box adaptée au buffer
+        var bbox = turf.bbox(polygonBuffer);
+
+        // Ajuste la vue à la bounding box
+        map.fitBounds(bbox);
+
+        // Ajoute le polygon du buffer comme source pour Mapbox
+        map.getSource('buffer').setData(polygonBuffer);
+
+        // Affiche le layer contenant le buffer
         map.addLayer({
-            "id": "point",
-            "source": "single-point",
-            "type": "circle",
-            "paint": {
-                "circle-radius": {
-                    stops: [
-                        [0, 0],
-                        [20, (10000 / 0.075 / Math.cos( ev.result.geometry.coordinates[0] * Math.PI / 180))]
-                    ],
-                    base: 2
-                },
-                "circle-color": "rgba(255, 255, 255, 0)",
-                "circle-stroke-width": 5,
-                "circle-stroke-color": "#000000",
-                "circle-stroke-opacity": 1
+            "id": "buffer",
+            "source": "buffer",
+            "type": "fill",
+            'layout': {},
+            'paint': {
+                'fill-color': '#088',
+                'fill-opacity': 0.1,
+                'fill-outline-color': "#000"
             }
         });
+
     });
 
     //var nbClicks = 0;
 
     // Tout simple, on set que l'élément est clickable
     map.on('click', 'points', function (e) {
-        
+
         //setTimeout(function(){
 
         new mapboxgl.Popup()
@@ -106,7 +130,7 @@ map.on('load', function () {
         } else {
             popup.remove();
             nbClicks = 0;
-        } 
+        }
         */
     });
 
@@ -121,7 +145,7 @@ map.on('load', function () {
     });
 
     // Center the map on the coordinates of any clicked symbol from the 'symbols' layer.
-    map.on('click', 'points', function (e) {
-        map.flyTo({center: e.features[0].geometry.coordinates});
-    });
+    // map.on('click', 'points', function (e) {
+    //     map.flyTo({center: e.features[0].geometry.coordinates});
+    // });
 });
