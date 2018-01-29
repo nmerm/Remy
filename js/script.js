@@ -145,7 +145,7 @@ map.on('load', function () {
 
 /* Merci Kelly & Keren pour l'explication dans l'établissement de cette fonction mathématique. */
 function distance(lat_a_degre, lon_a_degre, lat_b_degre, lon_b_degre){
-    R = 6378000 //Rayon de la terre en mètres
+    R = 6378000 //Rayon de la terre
     lat_a = Math.PI*lat_a_degre/180;
     lon_a = Math.PI*lon_a_degre/180;
     lat_b = Math.PI*lat_b_degre/180;
