@@ -1,3 +1,4 @@
+$(function(){
 
 // AFFICHAGE DE LA MAP, on va la chercher dans
 mapboxgl.accessToken = 'pk.eyJ1IjoiY2hvdWJpZG91YXAiLCJhIjoiY2pjcWZwaWZqMTV1YTJ3bWlpZ2kycG0xMiJ9.35GbAs9ZgRbsWhX7WZpf0w';
@@ -7,6 +8,7 @@ var map = new mapboxgl.Map({
     center: [8, 46], // starting position [lng, lat]
     zoom: 7 // starting zoom
 });
+var notreRecherche;
 
 /*-------- CONTROLES --------*/
 // Recherche
@@ -68,6 +70,7 @@ map.on('load', function () {
     // makes a selection and add a symbol that matches the result.
     // Tiré de : https://www.mapbox.com/mapbox-gl-js/example/point-from-geocoder-result/
     geocoder.on('result', function(ev) {
+
         map.getSource('single-point').setData(ev.result.geometry);
 
         // Rend les coordonnées du point renvoyé par le geocoder
@@ -101,37 +104,26 @@ map.on('load', function () {
             }
         });
 
-    });
+        notreRecherche = ev.result;
 
-    //var nbClicks = 0;
+    });
 
     // Tout simple, on set que l'élément est clickable
     map.on('click', 'points', function (e) {
 
-        //setTimeout(function(){
+        if(notreRecherche != null){
+            var laDistance = Math.round( distance(e.features[0].geometry.coordinates[1], e.features[0].geometry.coordinates[0], notreRecherche.geometry.coordinates[1], notreRecherche.geometry.coordinates[0]) / 100) / 10 + 'km.';
+        } else {
+            laDistance = '---';
+        }
 
         new mapboxgl.Popup()
         .setLngLat(e.features[0].geometry.coordinates)
         .setHTML('<b>'+e.features[0].properties.title+'</b>'
-                +'<br>Alt: '+e.features[0].properties.elevation+' m.')
+                +'<br>Alt: '+e.features[0].properties.elevation+' m.'
+                +'<br>Distance depuis le point recherché: '+ laDistance)
         .addTo(map);
 
-        //}, 100);
-
-        /* POUR FAIRE QUE SI IL RE APPUIE SUR LE MEME ICONE LA BOX DISPARAIT
-        nbClicks++;
-        popup = new mapboxgl.Popup();
-        if(nbClicks < 2){
-            popup
-            .setLngLat(e.features[0].geometry.coordinates)
-            .setHTML('<b>'+e.features[0].properties.title+'</b>'
-                    +'<br>Alt: '+e.features[0].properties.elevation+' m.')
-            .addTo(map);
-        } else {
-            popup.remove();
-            nbClicks = 0;
-        }
-        */
     });
 
     // Change the cursor to a pointer when the mouse is over the places layer.
@@ -144,8 +136,22 @@ map.on('load', function () {
         map.getCanvas().style.cursor = '';
     });
 
-    // Center the map on the coordinates of any clicked symbol from the 'symbols' layer.
+    /* Recentrer la map sur l'icône cliqué */
     // map.on('click', 'points', function (e) {
     //     map.flyTo({center: e.features[0].geometry.coordinates});
     // });
+});
+
+
+/* Merci Kelly & Keren pour l'explication dans l'établissement de cette fonction mathématique. */
+function distance(lat_a_degre, lon_a_degre, lat_b_degre, lon_b_degre){
+    R = 6378000 //Rayon de la terre en mètres
+    lat_a = Math.PI*lat_a_degre/180;
+    lon_a = Math.PI*lon_a_degre/180;
+    lat_b = Math.PI*lat_b_degre/180;
+    lon_b = Math.PI*lon_b_degre/180;
+    d = R * (Math.PI/2 - Math.asin( Math.sin(lat_b) * Math.sin(lat_a) + Math.cos(lon_b - lon_a) * Math.cos(lat_b) * Math.cos(lat_a)))
+    return d;
+}
+
 });
