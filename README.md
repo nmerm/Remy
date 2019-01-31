@@ -1,5 +1,3 @@
-# Remy
+# Projet "Remy"
 
-Sami, Pierre et Nicolas font un projet GéoInf avec GithHub.
-
-HAHAHAHAHA J'AI ENCORE MODIFIEEEEEEE
+Projet réalisé dans le cadre du cours de géoinformation à la HEIG-VD. &copy; 2018.
